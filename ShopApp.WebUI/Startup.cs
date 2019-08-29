@@ -25,7 +25,7 @@ namespace ShopApp.WebUI
             //IProductDal, MySqlProductDal
 
 
-            services.AddScoped<IProductDal, MemoryProductDal>();
+            services.AddScoped<IProductDal, EfCoreProductDal>();
             services.AddScoped<IProductService, ProductManager>();
 
 
