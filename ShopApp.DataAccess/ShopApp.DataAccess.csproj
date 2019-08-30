@@ -5,7 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Concrete\Memory\" />
+    <Compile Remove="Concrete\Memory\**" />
+    <EmbeddedResource Remove="Concrete\Memory\**" />
+    <None Remove="Concrete\Memory\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Concrete\MySql\" />
     <Folder Include="Concrete\Oracle\" />
   </ItemGroup>
