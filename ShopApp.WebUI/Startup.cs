@@ -25,9 +25,14 @@ namespace ShopApp.WebUI
             //IProductDal, EfCoreProductDal
             //IProductDal, MySqlProductDal
 
-
+            //DataAccess  ---> Burada bağımlık kaldırılmıştır. Eğer ilerleyen zamanlarda EF yerine başka bir şey örnek verecek olursa MySQL kullanacaksak
+            //sadece EfCore kısmını değiştimemiz yeterlidir. Buna Dependency Injection denir.
             services.AddScoped<IProductDal, EfCoreProductDal>();
+            services.AddScoped<ICategoryDal, EfCategoryDal>();
+
+            //Business
             services.AddScoped<IProductService, ProductManager>();
+            services.AddScoped<ICategoryService, CategoryManager>();
 
 
             services.AddMvc().SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_2);
