@@ -11,6 +11,7 @@ using ShopApp.Business.Concrete;
 using ShopApp.DataAccess.Abstract;
 using ShopApp.DataAccess.Concrete.EfCore;
 using ShopApp.DataAccess.Concrete.Memory;
+using ShopApp.WebUI.Middleware;
 
 namespace ShopApp.WebUI
 {
@@ -40,7 +41,8 @@ namespace ShopApp.WebUI
                 app.UseDeveloperExceptionPage();
                 SeedDatabase.Seed();
             }
-
+            app.UseStaticFiles();
+            app.CustomStaticFiles(); //extra bir klasörü dışarıya açtık.
             app.UseMvcWithDefaultRoute();
             
         }
