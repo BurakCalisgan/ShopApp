@@ -39,13 +39,20 @@ namespace ShopApp.WebUI.Controllers
             });
         }
 
-        //products/elefon?page=1
+        //products/elefon?page=1 
         public IActionResult List(string category, int page = 1)
         {
             const int pageSize = 3;
 
             return View(new ProductListModel()
             {
+                PagingInfo =new PageInfo()
+                {
+                    TotalItems = _productService.GetCountByCategory(category),
+                    CurrentPage = page,
+                    ItemsPerPage = pageSize,
+                    CurrentCategory = category
+                },
                 Products = _productService.GetProductsByCategory(category, page, pageSize)
             });
         }
