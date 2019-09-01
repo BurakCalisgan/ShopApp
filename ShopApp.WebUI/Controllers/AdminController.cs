@@ -89,5 +89,18 @@ namespace ShopApp.WebUI.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public IActionResult Delete(int productId)
+        {
+            var entity = _productService.GetById(productId);
+
+            if (entity != null)
+            {
+                _productService.Delete(entity);
+            }
+
+            return RedirectToAction("Index");
+        }
     }
 }
