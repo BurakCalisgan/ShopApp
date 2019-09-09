@@ -61,16 +61,18 @@ namespace ShopApp.WebUI.Controllers
 
         #region Login
 
-        public IActionResult Login()
+        public IActionResult Login(string ReturnUrl = null)
         {
-            return View(new LoginModel());
+            return View(new LoginModel()
+            {
+                ReturnUrl = ReturnUrl
+            });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginModel model, string returnUrl = null)
+        public async Task<IActionResult> Login(LoginModel model)
         {
-            returnUrl = returnUrl ?? "~/";
-
+           
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -87,7 +89,7 @@ namespace ShopApp.WebUI.Controllers
 
             if (result.Succeeded)
             {
-                return Redirect(returnUrl);
+                return Redirect(model.ReturnUrl ?? "~/");
             }
 
             ModelState.AddModelError("", "Kullanıcı adı ve ya parola yanlış");
