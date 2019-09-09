@@ -96,6 +96,12 @@ namespace ShopApp.WebUI.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return Redirect("~/");
+        }
+
         #endregion
 
 
