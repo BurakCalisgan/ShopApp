@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using ShopApp.WebUI.Extensions;
 using ShopApp.WebUI.Identity;
 using ShopApp.WebUI.Models;
 
@@ -65,6 +66,13 @@ namespace ShopApp.WebUI.Controllers
                     
                     );
 
+                TempData.Put("message", new ResultMessage()
+                {
+                    Title = "Hesap Onayı",
+                    Message = "Eposta adrenize gelen link ile hesabınızı onaylayınız.",
+                    Css = Css.warning
+                });
+
                 return RedirectToAction("Login", "Account");
             }
 
@@ -77,8 +85,13 @@ namespace ShopApp.WebUI.Controllers
         {
             if (userId == null || token == null)
             {
-                TempData["message"] = "Geçersiz Token !";
-                return View();
+                TempData.Put("message", new ResultMessage()
+                {
+                    Title = "Hesap Onayı",
+                    Message = "Hesap onayı için bilgileriniz yanlış !",
+                    Css = Css.danger
+                });
+                return Redirect("~/");
             }
 
             var user = await _userManager.FindByIdAsync(userId);
@@ -90,12 +103,23 @@ namespace ShopApp.WebUI.Controllers
 
                 if (result.Succeeded)
                 {
-                    TempData["message"] = "Hesabını başarıyla onaylandı.";
-                    return View();
+                    TempData.Put("message", new ResultMessage()
+                    {
+                        Title = "Hesap Onayı",
+                        Message = "Hesabınız başarıyla onaylandı",
+                        Css = Css.success
+                    });
+                    return RedirectToAction("Login");
                 }
 
             }
-            TempData["message"] = "Hesabınız onaylanmadı !";
+            TempData.Put("message", new ResultMessage()
+            {
+                Title = "Hesap Onayı",
+                Message = "Hesabınız Onaylanamadı !",
+                Css = Css.danger
+            });
+
             return View();
         }
 
@@ -147,6 +171,14 @@ namespace ShopApp.WebUI.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
+
+            TempData.Put("message", new ResultMessage()
+            {
+                Title = "Oturum Kapatıldı.",
+                Message = "Hesabınız güvenli bir şekilde sonlandırıldı.",
+                Css = Css.warning
+            });
+
             return Redirect("~/");
         }
 
@@ -164,6 +196,13 @@ namespace ShopApp.WebUI.Controllers
         {
             if (string.IsNullOrEmpty(Email))
             {
+
+                TempData.Put("message", new ResultMessage()
+                {
+                    Title = "Forgot Password",
+                    Message = "Bilgileriniz Hatalı !",
+                    Css = Css.danger
+                });
                 return View();
             }
 
@@ -171,6 +210,13 @@ namespace ShopApp.WebUI.Controllers
 
             if (user == null)
             {
+                TempData.Put("message", new ResultMessage()
+                {
+                    Title = "Forgot Password",
+                    Message = "Eposta adresi ile bir kullanıcı bulunamadı !",
+                    Css = Css.danger
+                });
+
                 return View();
             }
 
@@ -184,6 +230,13 @@ namespace ShopApp.WebUI.Controllers
 
             // send email
             await _emailSender.SendEmailAsync(Email, "Reset Password", $"Parolanızı yenilemek için linke <a href='http://localhost:51271{callbackUrl}'>tıklayınız.</a>");
+
+            TempData.Put("message", new ResultMessage()
+            {
+                Title = "Forgot Password",
+                Message = "Parola yenilemek için hesabınıza mail gönderildi.",
+                Css = Css.warning
+            });
 
             return RedirectToAction("Login", "Account");
         }
