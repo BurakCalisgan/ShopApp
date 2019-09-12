@@ -47,15 +47,48 @@ namespace ShopApp.WebUI.Controllers
 
             if (result.Succeeded)
             {
-                // generate token
+                //generate token 
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var callbackUrl = Url.Action("ConfirmEmail", "Account", new
+                {
+                    userId = user.Id,
+                    token = code
+                });
+
                 // send email
 
-                return RedirectToAction("account", "login");
+                return RedirectToAction("Login", "Account");
             }
 
 
             ModelState.AddModelError("", "Bilinmeyen hata oluştu lütfen tekrar deneyiniz.");
             return View(model);
+        }
+
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (userId == null || token == null)
+            {
+                TempData["message"] = "Geçersiz Token !";
+                return View();
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (userId != null)
+            {
+
+                var result = await _userManager.ConfirmEmailAsync(user, token);
+
+                if (result.Succeeded)
+                {
+                    TempData["message"] = "Hesabını başarıyla onaylandı.";
+                    return View();
+                }
+
+            }
+            TempData["message"] = "Hesabınız onaylanmadı !";
+            return View();
         }
 
         #endregion
@@ -73,7 +106,7 @@ namespace ShopApp.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel model)
         {
-           
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -83,6 +116,12 @@ namespace ShopApp.WebUI.Controllers
             if (user == null)
             {
                 ModelState.AddModelError("", "Bu kullanıcı ile daha önce hesap oluşturulmamış.");
+                return View(model);
+            }
+
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+            {
+                ModelState.AddModelError("", "Lütfen hesabınızı email ile onaylayınız !");
                 return View(model);
             }
 
