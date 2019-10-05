@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using ShopApp.Business.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,23 @@ namespace ShopApp.WebUI.EmailServices
 {
     public class EmailSender : IEmailSender
     {
-        //private const string SendGridKey = "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";
+        private IConfigKeyService _configKeyService;
+        private static string SendGridKey;
 
-        private const string SendGridKey = "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";
+        public EmailSender(IConfigKeyService configKeyService)
+        {
+            _configKeyService = configKeyService;
+
+            if (String.IsNullOrEmpty(SendGridKey))
+            {
+                SendGridKey = _configKeyService.GetConfigValueByKey("SendGridKey");
+            }
+
+        }
 
         public Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
+
             return Execute(SendGridKey, subject, htmlMessage, email);
         }
 

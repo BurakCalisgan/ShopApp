@@ -93,10 +93,12 @@ namespace ShopApp.WebUI
             //sadece EfCore kısmını değiştimemiz yeterlidir. Buna Dependency Injection denir.
             services.AddScoped<IProductDal, EfCoreProductDal>();
             services.AddScoped<ICategoryDal, EfCategoryDal>();
+            services.AddScoped<IConfigKeyDal, EfConfigKeyDal>();
 
             //Business
             services.AddScoped<IProductService, ProductManager>();
             services.AddScoped<ICategoryService, CategoryManager>();
+            services.AddScoped<IConfigKeyService, ConfigKeyManager>();
 
 
             services.AddTransient<IEmailSender, EmailSender>();
