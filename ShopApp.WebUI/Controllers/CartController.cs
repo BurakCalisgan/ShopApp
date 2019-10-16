@@ -55,5 +55,16 @@ namespace ShopApp.WebUI.Controllers
         }
 
         #endregion
+
+        #region DeleteFromCart
+
+        [HttpPost]
+        public IActionResult DeleteFromCart(int productId)
+        {
+            _cartService.DeleteFromCart(_userManager.GetUserId(User), productId);
+            return RedirectToAction("Index");
+        }
+
+        #endregion
     }
 }
