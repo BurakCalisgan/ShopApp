@@ -10,6 +10,17 @@ namespace ShopApp.DataAccess.Concrete.EfCore
 {
     public class EfCartDal : EfCoreGenericRepository<Cart, ShopContext>, ICartDal
     {
+        public override void Update(Cart entity)
+        {
+            using (ShopContext context = new ShopContext())
+            {
+                context.Carts.Update(entity);
+                context.SaveChanges();
+
+            }
+
+        }
+
         public Cart GetCartByUserId(string userId)
         {
             using (ShopContext context = new ShopContext())
@@ -18,7 +29,7 @@ namespace ShopApp.DataAccess.Concrete.EfCore
                               .Include(i => i.CartItems)
                               .ThenInclude(i => i.Product)
                               .FirstOrDefault(i => i.UserId == userId);
-            } 
+            }
         }
     }
 }

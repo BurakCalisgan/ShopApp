@@ -48,9 +48,10 @@ namespace ShopApp.WebUI.Controllers
         #region AddToCart
 
         [HttpPost]
-        public IActionResult AddToCart()
+        public IActionResult AddToCart(int productId, int quantity)
         {
-            return View();
+            _cartService.AddToCart(_userManager.GetUserId(User), productId, quantity);
+            return RedirectToAction("Index");
         }
 
         #endregion
