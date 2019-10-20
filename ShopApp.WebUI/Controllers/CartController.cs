@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ShopApp.Business.Abstract;
+using ShopApp.Entities;
 using ShopApp.WebUI.Identity;
 using ShopApp.WebUI.Models;
 
@@ -18,13 +19,16 @@ namespace ShopApp.WebUI.Controllers
     public class CartController : Controller
     {
         private ICartService _cartService;
+        private IOrderService _orderService;
         private UserManager<ApplicationUser> _userManager;
 
-        public CartController(ICartService cartService, UserManager<ApplicationUser> userManager)
+        public CartController(ICartService cartService, IOrderService orderService, UserManager<ApplicationUser> userManager)
         {
             _cartService = cartService;
+            _orderService = orderService;
             _userManager = userManager;
         }
+
         #region Index
 
         public IActionResult Index()
@@ -98,6 +102,75 @@ namespace ShopApp.WebUI.Controllers
         [HttpPost]
         public IActionResult Checkout(OrderModel model)
         {
+            if (ModelState.IsValid)
+            {
+                var userId = _userManager.GetUserId(User);
+                var cart = _cartService.GetCartByUserId(userId);
+
+                model.CartModel = new CartModel()
+                {
+                    CartId = cart.Id,
+                    CartItems = cart.CartItems.Select(i => new CartItemModel()
+                    {
+                        CartItemId = i.Id,
+                        ProductId = i.Product.Id,
+                        Name = i.Product.Name,
+                        Price = (decimal)i.Product.Price,
+                        ImageUrl = i.Product.ImageUrl,
+                        Quantity = i.Quantity
+                    }).ToList()
+                };
+
+                var payment = PaymentProcess(model);
+
+                if (payment.Status == "success")
+                {
+                    SaveOrder(model, payment, userId);
+                    // ClearCart(userId);
+                    return View("Success");
+                }
+            }
+
+            return View(model);
+        }
+
+        private void SaveOrder(OrderModel model, Payment payment, string userId)
+        {
+            var order = new Order();
+
+            order.OrderNumber = new Random().Next(111111, 999999).ToString();
+            order.OrderState = EnumOrderState.Completed;
+            order.PaymentTypes = EnumPaymentTypes.CreditCart;
+            order.PaymentId = payment.PaymentId;
+            order.ConversationId = payment.ConversationId;
+            order.OrderDate = new DateTime();
+            order.FirstName = model.FirstName;
+            order.LastName = model.LastName;
+            order.Email = model.Email;
+            order.Phone = model.Phone;
+            order.Address = model.Address;
+            order.UserId = userId;
+
+            foreach (var item in model.CartModel.CartItems)
+            {
+                var orderitem = new OrderItem()
+                {
+                    Price = item.Price,
+                    Quantity = item.Quantity,
+                    ProductId = item.ProductId
+                };
+                order.OrderItems.Add(orderitem);
+            }
+            _orderService.Create(order);
+        }
+
+        private void ClearCart(object userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Payment PaymentProcess(OrderModel model)
+        {
             Options options = new Options();
             options.ApiKey = "sandbox-vBUAENFWhIMDtA3Hdl1Fn0SWeezwhKQR";
             options.SecretKey = "sandbox-xhIy6Abg4h4usHqJjBCu3OrkaZYGpu9a";
@@ -105,24 +178,32 @@ namespace ShopApp.WebUI.Controllers
 
             CreatePaymentRequest request = new CreatePaymentRequest();
             request.Locale = Locale.TR.ToString();
-            request.ConversationId = "123456789";
-            request.Price = "1";
-            request.PaidPrice = "1.2";
+            request.ConversationId = Guid.NewGuid().ToString();
+            request.Price = model.CartModel.TotalPrice().ToString().Split(",")[0]; ;
+            request.PaidPrice = model.CartModel.TotalPrice().ToString().Split(",")[0]; ;
             request.Currency = Currency.TRY.ToString();
             request.Installment = 1;
-            request.BasketId = "B67832";
+            request.BasketId = model.CartModel.CartId.ToString();
             request.PaymentChannel = PaymentChannel.WEB.ToString();
             request.PaymentGroup = PaymentGroup.PRODUCT.ToString();
 
             PaymentCard paymentCard = new PaymentCard();
-            paymentCard.CardHolderName = "John Doe";
-            paymentCard.CardNumber = "5528790000000008";
-            paymentCard.ExpireMonth = "12";
-            paymentCard.ExpireYear = "2030";
-            paymentCard.Cvc = "123";
+            paymentCard.CardHolderName = model.CardName;
+            paymentCard.CardNumber = model.CardNumber;
+            paymentCard.ExpireMonth = model.ExpirationMonth;
+            paymentCard.ExpireYear = model.ExpirationYear;
+            paymentCard.Cvc = model.Cvv;
             paymentCard.RegisterCard = 0;
             request.PaymentCard = paymentCard;
 
+            //paymentCard.CardHolderName = "John Doe";
+            //paymentCard.CardNumber = "5528790000000008";
+            //paymentCard.ExpireMonth = "12";
+            //paymentCard.ExpireYear = "2030";
+            //paymentCard.Cvc = "123";
+
+
+            //Aşağıdaki bilgiler modelden doldurulmalıdır.
             Buyer buyer = new Buyer();
             buyer.Id = "BY789";
             buyer.Name = "John";
@@ -156,42 +237,24 @@ namespace ShopApp.WebUI.Controllers
             request.BillingAddress = billingAddress;
 
             List<BasketItem> basketItems = new List<BasketItem>();
-            BasketItem firstBasketItem = new BasketItem();
-            firstBasketItem.Id = "BI101";
-            firstBasketItem.Name = "Binocular";
-            firstBasketItem.Category1 = "Collectibles";
-            firstBasketItem.Category2 = "Accessories";
-            firstBasketItem.ItemType = BasketItemType.PHYSICAL.ToString();
-            firstBasketItem.Price = "0.3";
-            basketItems.Add(firstBasketItem);
+            BasketItem basketItem;
 
-            BasketItem secondBasketItem = new BasketItem();
-            secondBasketItem.Id = "BI102";
-            secondBasketItem.Name = "Game code";
-            secondBasketItem.Category1 = "Game";
-            secondBasketItem.Category2 = "Online Game Items";
-            secondBasketItem.ItemType = BasketItemType.VIRTUAL.ToString();
-            secondBasketItem.Price = "0.5";
-            basketItems.Add(secondBasketItem);
-
-            BasketItem thirdBasketItem = new BasketItem();
-            thirdBasketItem.Id = "BI103";
-            thirdBasketItem.Name = "Usb";
-            thirdBasketItem.Category1 = "Electronics";
-            thirdBasketItem.Category2 = "Usb / Cable";
-            thirdBasketItem.ItemType = BasketItemType.PHYSICAL.ToString();
-            thirdBasketItem.Price = "0.2";
-            basketItems.Add(thirdBasketItem);
-            request.BasketItems = basketItems;
-
-            Payment payment = Payment.Create(request, options);
-
-            if (payment.Status == "success")
+            foreach (var item in model.CartModel.CartItems)
             {
-                return View("Success");
+                basketItem = new BasketItem();
+                basketItem.Id = item.ProductId.ToString();
+                basketItem.Name = item.Name;
+                basketItem.Category1 = "Phone";
+                basketItem.ItemType = BasketItemType.PHYSICAL.ToString();
+                basketItem.Price = item.Price.ToString().Split(",")[0];
+
+                basketItems.Add(basketItem);
             }
 
-            return View(model);
+            request.BasketItems = basketItems;
+
+            return Payment.Create(request, options);
+
         }
 
         #endregion
