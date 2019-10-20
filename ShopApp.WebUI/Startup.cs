@@ -92,9 +92,9 @@ namespace ShopApp.WebUI
             //DataAccess  ---> Burada bağımlık kaldırılmıştır. Eğer ilerleyen zamanlarda EF yerine başka bir şey örnek verecek olursa MySQL kullanacaksak
             //sadece EfCore kısmını değiştimemiz yeterlidir. Buna Dependency Injection denir.
             services.AddScoped<IProductDal, EfCoreProductDal>();
-            services.AddScoped<ICategoryDal, EfCategoryDal>();
-            services.AddScoped<IConfigKeyDal, EfConfigKeyDal>();
-            services.AddScoped<ICartDal, EfCartDal>();
+            services.AddScoped<ICategoryDal, EfCoreCategoryDal>();
+            services.AddScoped<IConfigKeyDal, EfCoreConfigKeyDal>();
+            services.AddScoped<ICartDal, EfCoreCartDal>();
             services.AddScoped<IOrderDal, EfCoreOrderDal>();
 
             //Business

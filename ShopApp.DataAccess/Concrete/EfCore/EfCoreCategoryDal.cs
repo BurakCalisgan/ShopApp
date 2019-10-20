@@ -9,7 +9,7 @@ using System.Text;
 
 namespace ShopApp.DataAccess.Concrete.EfCore
 {
-    public class EfCategoryDal : EfCoreGenericRepository<Category, ShopContext>, ICategoryDal
+    public class EfCoreCategoryDal : EfCoreGenericRepository<Category, ShopContext>, ICategoryDal
     {
         public void DeleteFromCategory(int categoryId, int productId)
         {

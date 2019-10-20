@@ -126,7 +126,7 @@ namespace ShopApp.WebUI.Controllers
                 if (payment.Status == "success")
                 {
                     SaveOrder(model, payment, userId);
-                    // ClearCart(userId);
+                    ClearCart(cart.Id.ToString());
                     return View("Success");
                 }
             }
@@ -143,7 +143,7 @@ namespace ShopApp.WebUI.Controllers
             order.PaymentTypes = EnumPaymentTypes.CreditCart;
             order.PaymentId = payment.PaymentId;
             order.ConversationId = payment.ConversationId;
-            order.OrderDate = new DateTime();
+            order.OrderDate = DateTime.Now;
             order.FirstName = model.FirstName;
             order.LastName = model.LastName;
             order.Email = model.Email;
@@ -164,9 +164,9 @@ namespace ShopApp.WebUI.Controllers
             _orderService.Create(order);
         }
 
-        private void ClearCart(object userId)
+        private void ClearCart(string cartId)
         {
-            throw new NotImplementedException();
+            _cartService.ClearCart(cartId);
         }
 
         private Payment PaymentProcess(OrderModel model)

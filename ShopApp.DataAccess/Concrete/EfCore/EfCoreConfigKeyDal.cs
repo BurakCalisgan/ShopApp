@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ShopApp.DataAccess.Concrete.EfCore
 {
-    public class EfConfigKeyDal : EfCoreGenericRepository<ConfigKey, ShopContext>, IConfigKeyDal
+    public class EfCoreConfigKeyDal : EfCoreGenericRepository<ConfigKey, ShopContext>, IConfigKeyDal
     {
         public string GetConfigValueByKey(string key)
         {
