@@ -23,6 +23,7 @@ namespace ShopApp.DataAccess.Concrete.EfCore
         public DbSet<Category> Categories { get; set; }
         public DbSet<ConfigKey> ConfigKeys { get; set; }
         public DbSet<Cart> Carts { get; set; }
+        public DbSet<Order> Orders { get; set; }
 
         //İşlemlerisadece Cart sınıfı üzerinden yapacağımız için buraya CartItems'ı eklememize gerek yok.
         //Zaten ilişkileri olduğu için direk olarak db'ye CartItem yansıyacak.
