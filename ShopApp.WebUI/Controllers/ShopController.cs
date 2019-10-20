@@ -39,7 +39,7 @@ namespace ShopApp.WebUI.Controllers
             });
         }
 
-        //products/elefon?page=1 
+        //products/telefon?page=1 
         public IActionResult List(string category, int page = 1)
         {
             const int pageSize = 3;
