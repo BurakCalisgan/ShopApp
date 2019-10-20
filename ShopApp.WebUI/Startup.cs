@@ -116,6 +116,12 @@ namespace ShopApp.WebUI
                 app.UseDeveloperExceptionPage();
                 SeedDatabase.Seed();
             }
+            else
+            {
+                //burası daha sonra düzenlenip sayfa bulunamadı veya status kodlar ile yönlendirme sayfasına gönderilecek.
+                //hata detayı ve yönlendirme sayfasına gönderilecek.
+                app.UseStatusCodePages();
+            }
             app.UseStaticFiles();
             app.CustomStaticFiles(); //extra bir klasörü dışarıya açtık.
             app.UseAuthentication();
@@ -139,6 +145,12 @@ namespace ShopApp.WebUI
                     template: "cart",
                     defaults: new { controller = "Cart", action = "Index" }
                 );
+
+                routes.MapRoute(
+                  name: "checkout",
+                  template: "checkout",
+                  defaults: new { controller = "Cart", action = "Checkout" }
+              );
 
                 routes.MapRoute(
                   name: "products",

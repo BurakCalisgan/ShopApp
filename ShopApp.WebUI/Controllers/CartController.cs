@@ -66,5 +66,14 @@ namespace ShopApp.WebUI.Controllers
         }
 
         #endregion
+
+        #region Checkout  
+
+        public IActionResult Checkout()
+        {
+            return View();
+        }
+
+        #endregion
     }
 }
